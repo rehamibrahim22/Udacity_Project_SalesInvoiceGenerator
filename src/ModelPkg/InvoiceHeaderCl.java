@@ -99,7 +99,8 @@ public class InvoiceHeaderCl {
      }
     @Override
     public String toString() {
-        return "InvoiceHeaderCl{" + "invNumber=" + invNumber + ", invDate=" + invDate + ", custName=" + custName + '}';
+        return "Invoice Header{" + "invoice Number= " + invNumber + ", invoice Date= " + invDate + ", customer Name= " + custName + '}';
+        
     }
     }
 

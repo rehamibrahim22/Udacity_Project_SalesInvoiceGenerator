@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 import ViewPkg.InvoiceDataFrame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import ControllerPkg.ButtonsListeners;
+
 
 /**
  *
@@ -31,7 +31,7 @@ public class InvoiceHeaderDialog extends JDialog {
     private JButton cancelBtn;
     InvoiceDataFrame dataFrame;
 
-    ButtonsListeners buttonActionListeners;
+   
     ActionListeners actionListeners;
     
     public InvoiceHeaderDialog(ActionListeners actionListeners) {

@@ -178,7 +178,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="invHeaderjTable.getSelectionModel().addListSelectionListener(this);&#xd;&#xa;"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="invHeaderjTable.getSelectionModel().addListSelectionListener(actionListeners);&#xd;&#xa;"/>
           </AuxValues>
         </Component>
       </SubComponents>

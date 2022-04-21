@@ -61,13 +61,14 @@ public class InvoiceLinesCl {
         
     }
     
-    public String getDatainCSV() {
+    public String getDataInFile() {
         return "" + getHeaderobj().getInvNumber()+ "," + getItemName() + "," + getItemPrice() + "," + getItemCount();
     }
 
     @Override
     public String toString() {
-        return "InvoiceLinesCl{" + "headerobj=" + headerobj + ", itemName=" + itemName + ", itemPrice=" + itemPrice + ", itemCount=" + itemCount + '}';
+        return "        "+"InvoiceLines{"  +"item Name= " + itemName + ", item Price= " + itemPrice + ", item Count= " + itemCount + '}';
+        //return "InvoiceLines{" + "headerobj= " + headerobj + ", itemName= " + itemName + ", itemPrice= " + itemPrice + ", itemCount= " + itemCount + '}';
     }
 
     

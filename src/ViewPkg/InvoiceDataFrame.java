@@ -5,9 +5,9 @@
  */
 package ViewPkg;
 
-import ControllerPkg.ButtonsListeners;
+
 import ControllerPkg.ActionListeners;
-import ControllerPkg.InvoiceSelectionListeners;
+
 import ModelPkg.InvoiceHeaderCl;
 import ModelPkg.InvoiceHeaderTable;
 import ModelPkg.InvoiceLinesCl;
@@ -33,7 +33,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author reham.ibrahim
  */
-public class InvoiceDataFrame extends javax.swing.JFrame implements ActionListener,ListSelectionListener {
+public class InvoiceDataFrame extends javax.swing.JFrame implements ActionListener {
 
    public InvoiceHeaderCl invHeader;
     private InvoiceHeaderTable HeaderTable;
@@ -45,7 +45,7 @@ public class InvoiceDataFrame extends javax.swing.JFrame implements ActionListen
      private ArrayList<InvoiceHeaderCl> headersArray;
     private ArrayList<InvoiceLinesCl> InvLinesArray;
     
-    private InvoiceSelectionListeners selectionListener = new InvoiceSelectionListeners(this);
+    //private InvoiceSelectionListeners selectionListener = new InvoiceSelectionListeners(this);
     /**
      * Creates new form InvLineFrame
      */
@@ -97,7 +97,7 @@ public class InvoiceDataFrame extends javax.swing.JFrame implements ActionListen
 
             }
         ));
-        invHeaderjTable.getSelectionModel().addListSelectionListener(this);
+        invHeaderjTable.getSelectionModel().addListSelectionListener(actionListeners);
         jScrollPane1.setViewportView(invHeaderjTable);
 
         createNewInvoicejButton1.setText("Create new Invoice");
@@ -301,19 +301,28 @@ public class InvoiceDataFrame extends javax.swing.JFrame implements ActionListen
         this.InvLinesArray = InvLinesArray;
     }
     
-    public InvoiceHeaderTable getHeaderTableModel() {
+    public InvoiceHeaderTable getInvoiceHeaderTableModel() {
         return HeaderTable;
     }
+    
+    public InvoiceLinesTable getInvoiceLineTableModel() {
+        return LinesTable;
+    }
 
-    public void setHeaderTableModel(InvoiceHeaderTable headerTableModel) {
+    public void setInvoiceHeaderTableModel(InvoiceHeaderTable headerTableModel) {
         this.HeaderTable = headerTableModel;
     }
 
-    public JTable getInvHTbl() {
+    public void setInvoiceLinesTableModel(InvoiceLinesTable invoiceLinesTableModel) {
+        this.LinesTable = invoiceLinesTableModel;
+    }
+    
+    public JTable getInvoiceHeaderTable() {
         return invHeaderjTable;
     }
-
-    public JTable getInvLTbl() {
+    
+    
+    public JTable getInvoiceLineTable() {
         return invLinesjTable;
     }
     
@@ -387,37 +396,42 @@ public class InvoiceDataFrame extends javax.swing.JFrame implements ActionListen
     // End of variables declaration//GEN-END:variables
 
     private ActionListeners actionListeners = new ActionListeners(this);
-    private  ButtonsListeners buttonActionListeners = new ButtonsListeners(this);
+    //private  ButtonsListeners buttonActionListeners = new ButtonsListeners(this);
     
 
-    @Override
+   /* @Override
     public void valueChanged(ListSelectionEvent e) {
-        System.out.println("row selected");
-        InvoiceRowselected();
-    }
-
-    private void InvoiceRowselected() {
-       int dataSelectedIndex = invHeaderjTable.getSelectedRow();
+        
+         int dataSelectedIndex = invHeaderjTable.getSelectedRow();
+       System.out.println("Selected Header Row index = "+ dataSelectedIndex);
+       
        if(dataSelectedIndex>=0)
        {
           
-           InvoiceHeaderCl data= HeaderTable.getInvoicesList().get(dataSelectedIndex);
-
-           custNameText1.setText(data.getCustName());
+           //InvoiceHeaderCl data= HeaderTable.getInvoicesList().get(dataSelectedIndex); //need to make sure 
+           InvoiceHeaderCl data= getHeadersArray().get(dataSelectedIndex);
+           ArrayList<InvoiceLinesCl> lines= data.getLines();
+           InvoiceLinesTable invLineTableModel= new InvoiceLinesTable(lines);
+           setInvLinesArray(lines);
+           getInvoiceLineTable().setModel(invLineTableModel);
+           
+           
+          custNameText1.setText(data.getCustName());
           invDateText.setText(dataFormat.format(data.getInvDate()));
            invNumLabel.setText(String.valueOf(data.getInvNumber()));
            InvTotalLabel.setText(String.valueOf(data.getInvTotal()));
-           ArrayList<InvoiceLinesCl> invLines= data.getLines();
-           setInvLinesArray(invLines); //need to check it again 
-           LinesTable= new InvoiceLinesTable(invLines);
-           invLinesjTable.setModel(LinesTable);
-           LinesTable.fireTableDataChanged();
-          
-          
-          
            
-       }
+           //ArrayList<InvoiceLinesCl> invLines= data.getLines();
+           //setInvLinesArray(invLines); //need to check it again 
+           //LinesTable= new InvoiceLinesTable(invLines);
+           //invLinesjTable.setModel(LinesTable);
+           //LinesTable.fireTableDataChanged();
+          
+          
     }
+    }*/
+
+
 
     @Override
     public void actionPerformed(ActionEvent e) {

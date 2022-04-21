@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;  
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ import javax.swing.table.AbstractTableModel;
  *
  * @author reham.ibrahim
  */
-public class ActionListeners extends JFrame implements ActionListener {
+public class ActionListeners extends JFrame implements ActionListener,ListSelectionListener {
     
      private InvoiceDataFrame dataframe;
      private SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
@@ -71,32 +72,28 @@ public class ActionListeners extends JFrame implements ActionListener {
                 break;
                 
             case "Create new Invoice":
-                showcreateNewInvoiceDialog();
+                showCreateNewInvoiceDialog();
                 break;
                 
-            case "Delete Invoice":
-                deleteInvoice();
-                break;
-                
-            case "Save":
-                    saveChanges();
-                break;
-                
-                case "Cancel":
-                    cancelChanges();
-                break;
-                                               
-                case "Create New Line":
-                    showNewLineDialog();
-                        
-                        break;
                 case "createInvoiceOK":
-                    createInvoiceHedaerOK();
+                    createInvoiceHeaderOK();
                 break;
                 
                 case "createInvoiceCancel":
                     createInvoiceHeaderCancel();
                 break;
+                
+            case "Delete Invoice":
+                deleteHeader();
+                break;
+                
+           
+                                               
+                case "Create New Line":
+                    showNewLineDialog();
+                        
+                        break;
+                
                 
                 case "NewLineOK":
                     creatNewLineOk();
@@ -193,7 +190,9 @@ public class ActionListeners extends JFrame implements ActionListener {
                 
                 Date invDate= df.parse(datestr);
                 
+                
                 InvoiceHeaderCl header = new InvoiceHeaderCl(invno,invDate,custName);
+                
                     invHeaders.add(header);
             }
             dataframe.setHeadersArray(invHeaders);
@@ -218,15 +217,16 @@ public class ActionListeners extends JFrame implements ActionListener {
                         InvoiceHeaderCl headerobj= getRelatedInvoiceByInvNumb(linesInvNum);
                         InvoiceLinesCl line = new InvoiceLinesCl(headerobj, item, itemPrice, itemCount);
                         headerobj.getLines().add(line);
-                        
+                        //String output= headerobj.toString();
+                        //System.out.print(output);
                     }
                     
-                   
+                  
                     
                     
                      headerTableModel = new InvoiceHeaderTable(invHeaders);
-                dataframe.setHeaderTableModel(headerTableModel);
-                dataframe.getInvHTbl().setModel(headerTableModel);
+                dataframe.setInvoiceHeaderTableModel(headerTableModel);
+                dataframe.getInvoiceHeaderTable().setModel(headerTableModel);
                 System.out.println("open the Files Successfully");
                                       
                         }
@@ -240,6 +240,7 @@ public class ActionListeners extends JFrame implements ActionListener {
         }
         }
         
+        showDataConsole();
         
     }
         
@@ -263,7 +264,7 @@ public class ActionListeners extends JFrame implements ActionListener {
             invoiceheaders += header.getDatainCSV();
             invoiceheaders += "\n";
             for (InvoiceLinesCl line : header.getLines()) {
-                lines += line.getDatainCSV();
+                lines += line.getDataInFile();
                 lines += "\n";
             }
         }
@@ -297,7 +298,7 @@ public class ActionListeners extends JFrame implements ActionListener {
     }
     
     
-    private void showcreateNewInvoiceDialog() {
+    private void showCreateNewInvoiceDialog() {
         
         headerDialog= new InvoiceHeaderDialog(this);
         headerDialog.setVisible(true);
@@ -309,7 +310,7 @@ public class ActionListeners extends JFrame implements ActionListener {
         headerDialog = null;
     }
     
-    private void createInvoiceHedaerOK() {
+    private void createInvoiceHeaderOK() {
         String customerName= headerDialog.getCustomerNameText().getText();
         String invoiceDatestr = headerDialog.getInvoiceDateText().getText();
         Date invoiceDate=new Date();
@@ -327,16 +328,12 @@ public class ActionListeners extends JFrame implements ActionListener {
             
             invHeaders.add(headerobj);
             headerTableModel = new InvoiceHeaderTable(invHeaders);
-            dataframe.setHeaderTableModel(headerTableModel);
-            dataframe.getInvHTbl().setModel(headerTableModel);
+            dataframe.setInvoiceHeaderTableModel(headerTableModel);
+            dataframe.getInvoiceHeaderTable().setModel(headerTableModel);
             
             headerTableModel.fireTableDataChanged();
             
-            
-            
-             
-            
-            
+  
         }catch (ParseException ex) {
              JOptionPane.showMessageDialog(dataframe, "invalid Date format,display today as default date ", "Invalid Date", JOptionPane.ERROR);
             ex.printStackTrace();
@@ -344,14 +341,15 @@ public class ActionListeners extends JFrame implements ActionListener {
         
     }
 
-    private void deleteInvoice() {
-        int selectedrowindex= dataframe.getInvHTbl().getSelectedRow();
+    private void deleteHeader() {
+        int selectedrowindex= dataframe.getInvoiceHeaderTable().getSelectedRow();
         if(selectedrowindex >=0)
         {
             dataframe.getHeadersArray().remove(selectedrowindex);
-            dataframe.getHeaderTableModel().fireTableDataChanged();
-            
-            dataframe.getInvLTbl().setModel(new InvoiceLinesTable(null));
+            dataframe.getInvoiceHeaderTableModel().fireTableDataChanged();
+            System.out.println("header row deleted");
+           
+            dataframe.getInvoiceLineTable().setModel(new InvoiceLinesTable(null));
             dataframe.setInvLinesArray(null);
             dataframe.getInvNumLabel().setText("");
             dataframe.getInvDateText().setText("");
@@ -363,12 +361,24 @@ public class ActionListeners extends JFrame implements ActionListener {
         
         
     }
-
-    private void saveChanges() {
-            }
-
-    private void cancelChanges() {
-        
+    private void deleteHeader2() {
+        int selectedrowindex= dataframe.getInvoiceHeaderTable().getSelectedRow();
+        if(selectedrowindex >=0)
+        {
+            InvoiceHeaderCl header = dataframe.getInvoiceHeaderTableModel().getInvoicesList().get(selectedrowindex);
+            dataframe.getInvoiceHeaderTableModel().getInvoicesList().remove(selectedrowindex);
+             dataframe.getInvoiceHeaderTableModel().fireTableDataChanged();
+             dataframe.setInvoiceLinesTableModel(new InvoiceLinesTable(new ArrayList<InvoiceLinesCl>()));
+             dataframe.getInvoiceHeaderTable().setModel(dataframe.getInvoiceLineTableModel());
+             dataframe.getInvoiceLineTableModel().fireTableDataChanged();
+             
+             dataframe.setInvLinesArray(null);
+            dataframe.getInvNumLabel().setText("");
+            dataframe.getInvDateText().setText("");
+            dataframe.getCustNameText1().setText("");
+            dataframe.getInvTotalLabel().setText("");
+             
+        }
     }
 
     
@@ -384,7 +394,7 @@ public class ActionListeners extends JFrame implements ActionListener {
             }
             
         }
-        return last++;
+        return last+1;
     }
 private void showNewLineDialog() {
     
@@ -409,7 +419,7 @@ private void showNewLineDialog() {
          }
       
              
-        int selectedHeaderRow = dataframe.getInvHTbl().getSelectedRow();
+        int selectedHeaderRow = dataframe.getInvoiceHeaderTable().getSelectedRow();
         if(selectedHeaderRow>=0)
         {
          InvoiceHeaderCl invHeader =dataframe.getHeadersArray().get(selectedHeaderRow);
@@ -418,22 +428,19 @@ private void showNewLineDialog() {
         //invHeader.addInvLine(invLine);
         
         dataframe.getInvLinesArray().add(invLine);
-        InvoiceLinesTable LineTableModel=(InvoiceLinesTable)dataframe.getInvLTbl().getModel();
+        InvoiceLinesTable LineTableModel=(InvoiceLinesTable)dataframe.getInvoiceLineTable().getModel();
         
        LineTableModel.fireTableDataChanged();   
        
-       dataframe.getHeaderTableModel().fireTableDataChanged();
+       dataframe.getInvoiceHeaderTableModel().fireTableDataChanged();
         
         }
-        dataframe.getInvHTbl().setRowSelectionInterval(selectedHeaderRow, selectedHeaderRow);
+        dataframe.getInvoiceHeaderTable().setRowSelectionInterval(selectedHeaderRow, selectedHeaderRow);
         
          newLineDialog.setVisible(false);
          newLineDialog.dispose();
          newLineDialog= null;
-         
-        
-           
-         
+       
          }
 
     private void createNewLineCancel() {
@@ -443,12 +450,12 @@ private void showNewLineDialog() {
     }
 
     private void deleteLine() {
-       /* int selectedlineIndex= dataframe.getInvLTbl().getSelectedRow();
-        int selectedHeaderIndex = dataframe.getInvHTbl().getSelectedRow();
+       /* int selectedlineIndex= dataframe.getInvoiceLineTable().getSelectedRow();
+        int selectedHeaderIndex = dataframe.getInvoiceHeaderTable().getSelectedRow();
         if (selectedlineIndex>=0)
         {
             dataframe.getInvLinesArray().remove(selectedlineIndex);
-            InvoiceLinesTable invLineTableModel= (InvoiceLinesTable)dataframe.getInvLTbl().getModel();
+            InvoiceLinesTable invLineTableModel= (InvoiceLinesTable)dataframe.getInvoiceLineTable().getModel();
             invLineTableModel.fireTableDataChanged();
             
            
@@ -456,25 +463,75 @@ private void showNewLineDialog() {
                   double lineTotalPrice=  line.getInvLineTotalPrice();
             
             dataframe.getInvTotalLabel().setText(""+lineTotalPrice);
-            dataframe.getHeaderTableModel().fireTableDataChanged();
-            dataframe.getInvLTbl().setRowSelectionInterval(selectedHeaderIndex, selectedHeaderIndex);
+            dataframe.getInvoiceHeaderTableModel().fireTableDataChanged();
+            dataframe.getInvoiceLineTable().setRowSelectionInterval(selectedHeaderIndex, selectedHeaderIndex);
             
             
         }*/
       
-        int selectedLineIndex = dataframe.getInvLTbl().getSelectedRow();
-        int selectedInvoiceIndex = dataframe.getInvHTbl().getSelectedRow();
+        int selectedLineIndex = dataframe.getInvoiceLineTable().getSelectedRow();
+        int selectedInvoiceIndex = dataframe.getInvoiceHeaderTable().getSelectedRow();
         if (selectedLineIndex != -1) {
             dataframe.getInvLinesArray().remove(selectedLineIndex);
-            InvoiceLinesTable lineTableModel = (InvoiceLinesTable) dataframe.getInvLTbl().getModel();
+            InvoiceLinesTable lineTableModel = (InvoiceLinesTable) dataframe.getInvoiceLineTable().getModel();
             lineTableModel.fireTableDataChanged();
             dataframe.getInvTotalLabel().setText(""+dataframe.getHeadersArray().get(selectedInvoiceIndex).getInvTotal());
-            dataframe.getHeaderTableModel().fireTableDataChanged();
-            dataframe.getInvHTbl().setRowSelectionInterval(selectedInvoiceIndex, selectedInvoiceIndex);
+            dataframe.getInvoiceHeaderTableModel().fireTableDataChanged();
+            dataframe.getInvoiceHeaderTable().setRowSelectionInterval(selectedInvoiceIndex, selectedInvoiceIndex);
         }
     }
-       
+
+    private void showDataConsole() {
+        
+        System.out.println("***************************");
+        
+        for (InvoiceHeaderCl header : dataframe.getHeadersArray()) {
+            System.out.println(header);
+            for(int x=0;x<header.getLines().size();x++)
+            {
+                System.out.println(header.getLines().get(x));
+            }
+        }
+        System.out.println("***************************");
     }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        
+        int dataSelectedIndex = dataframe.getInvoiceHeaderTable().getSelectedRow();
+       System.out.println("Selected Header Row index = "+ dataSelectedIndex);
+       
+       if(dataSelectedIndex>=0)
+       {
+          
+           //InvoiceHeaderCl data= HeaderTable.getInvoicesList().get(dataSelectedIndex); //need to make sure 
+           InvoiceHeaderCl data= dataframe.getHeadersArray().get(dataSelectedIndex);
+           ArrayList<InvoiceLinesCl> lines= data.getLines();
+           InvoiceLinesTable invLineTableModel= new InvoiceLinesTable(lines);
+           dataframe.setInvLinesArray(lines);
+           dataframe.getInvoiceLineTable().setModel(invLineTableModel);
+           
+           
+          dataframe.getCustNameText1().setText(data.getCustName());
+          dataframe.getInvDateText().setText(df.format(data.getInvDate()));
+           dataframe.getInvNumLabel().setText(String.valueOf(data.getInvNumber()));
+           dataframe.getInvTotalLabel().setText(String.valueOf(data.getInvTotal()));
+           
+           //ArrayList<InvoiceLinesCl> invLines= data.getLines();
+           //setInvLinesArray(invLines); //need to check it again 
+           //LinesTable= new InvoiceLinesTable(invLines);
+           //invLinesjTable.setModel(LinesTable);
+           //LinesTable.fireTableDataChanged();
+          
+          
+    }
+    }
+
+   
+
+    }
+       
+    
 
     
 
